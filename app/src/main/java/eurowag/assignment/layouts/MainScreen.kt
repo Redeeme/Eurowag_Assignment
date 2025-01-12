@@ -12,12 +12,14 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Stop
+import androidx.compose.material.icons.filled.ZoomOutMap
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -37,6 +39,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -63,7 +66,7 @@ import java.util.Date
 import java.util.Locale
 
 @Composable
-fun MainScreen(navController: NavController, viewModel: MainViewModel = hiltViewModel()) {
+fun MainScreen(navController: NavController, viewModel: MainViewModel = hiltViewModel(),permissionRequest: ()->Unit,) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val pagerState = rememberPagerState { state.locations.size }
     val scope = rememberCoroutineScope()
@@ -73,8 +76,8 @@ fun MainScreen(navController: NavController, viewModel: MainViewModel = hiltView
         bottomBar = {
             BottomAppMainBar(
                 isTracking = state.isTracking,
-                onStartClick = viewModel::startTracking,
-                onStopClick = viewModel::stopTracking
+                viewModel = viewModel,
+                permissionRequest = permissionRequest
             )
         }
     ) { padding ->
@@ -89,7 +92,6 @@ fun MainScreen(navController: NavController, viewModel: MainViewModel = hiltView
                     mapToolbarEnabled = false
                 )
             ) {
-                // Draw markers with highlighting for current pager position
                 state.locations.forEachIndexed { index, loc ->
                     key(loc.id) {
                         Marker(
@@ -125,7 +127,7 @@ fun MainScreen(navController: NavController, viewModel: MainViewModel = hiltView
                 modifier = Modifier
                     .align(Alignment.TopCenter)
                     .padding(16.dp)
-                    .height(120.dp)
+                    .wrapContentHeight()
                     .fillMaxWidth()
             ) { page ->
                 LocationCard(
@@ -139,35 +141,40 @@ fun MainScreen(navController: NavController, viewModel: MainViewModel = hiltView
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TopAppMainBar(navController: NavController, onZoom: ()->Unit) {
-    TopAppBar(title = {
-        Text(
-            text = stringResource(id = R.string.app_name),
-            style = MaterialTheme.typography.labelLarge
-        )
-    },
-        actions = {
-            IconButton(onClick = { navController.navigate(Screen.Settings.route) }) {
-                Icon(Icons.Default.Settings, contentDescription = "Settings")
-            }
+fun TopAppMainBar(navController: NavController, onZoom: () -> Unit) {
+    TopAppBar(
+        title = {
             Text(
-                text = "zoom to all pins",
-                style = MaterialTheme.typography.labelLarge,
-                modifier = Modifier.clickable{
-                    onZoom()
-                }
+                text = stringResource(id = R.string.app_name),
+                style = MaterialTheme.typography.labelLarge
             )
-        })
+        },
+        actions = {
+            IconButton(onClick = onZoom) {
+                Icon(
+                    imageVector = Icons.Default.ZoomOutMap,
+                    contentDescription = "Zoom to all pins"
+                )
+            }
+            IconButton(onClick = { navController.navigate(Screen.Settings.route) }) {
+                Icon(
+                    imageVector = Icons.Default.Settings,
+                    contentDescription = "Settings"
+                )
+            }
+        }
+    )
 }
 
 
 @Composable
 fun BottomAppMainBar(
     isTracking: Boolean,
-    onStartClick: () -> Unit,
-    onStopClick: () -> Unit,
+    viewModel: MainViewModel,
+    permissionRequest: ()->Unit,
     modifier: Modifier = Modifier
 ) {
+    val context = LocalContext.current
     Surface(
         modifier = modifier
             .fillMaxWidth()
@@ -182,7 +189,14 @@ fun BottomAppMainBar(
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             Button(
-                onClick = onStartClick,
+                onClick = {
+                    if (viewModel.checkPermissions(context)){
+                        viewModel.startTracking()
+                    }else{
+                        permissionRequest()
+                    }
+
+                },
                 modifier = Modifier
                     .weight(1f)
                     .fillMaxHeight(),
@@ -205,7 +219,7 @@ fun BottomAppMainBar(
             }
 
             Button(
-                onClick = onStopClick,
+                onClick = { viewModel.stopTracking() },
                 modifier = Modifier
                     .weight(1f)
                     .fillMaxHeight(),
@@ -252,6 +266,14 @@ fun LocationCard(
             )
             Text(
                 text = "Lng: ${location.longitude}",
+                style = MaterialTheme.typography.bodyMedium
+            )
+            Text(
+                text = "accuracy: ${location.accuracy}",
+                style = MaterialTheme.typography.bodyMedium
+            )
+            Text(
+                text = "provider: ${location.provider}",
                 style = MaterialTheme.typography.bodyMedium
             )
         }

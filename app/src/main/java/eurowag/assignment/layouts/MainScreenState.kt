@@ -15,5 +15,4 @@ data class MainScreenState(
             12f
         )
     ),
-    val selectedLocationId: Long? = null,
 )

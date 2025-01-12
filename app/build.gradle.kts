@@ -100,4 +100,6 @@ dependencies {
     // Map
     implementation(libs.google.maps.compose)
     implementation(libs.google.play.services.maps)
+    implementation(libs.moshi.kotlin)
+    ksp(libs.moshi.kotlin.codegen)
 }

@@ -1,5 +1,6 @@
 package eurowag.assignment
 
+import android.webkit.PermissionRequest
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
@@ -36,7 +37,8 @@ import eurowag.assignment.layouts.navigation.Screen
 @Composable
 fun MainCompose(
     navHostController: NavHostController,
-    mainViewModel: MainViewModel = hiltViewModel()
+    mainViewModel: MainViewModel = hiltViewModel(),
+    permissionRequest: ()->Unit,
 ) {
     val context = LocalContext.current
 
@@ -46,7 +48,7 @@ fun MainCompose(
             startDestination = Screen.Main.route
         ) {
             composable(route = Screen.Main.route) {
-                MainScreen(navController = navHostController, viewModel = mainViewModel)
+                MainScreen(navController = navHostController, viewModel = mainViewModel,permissionRequest = permissionRequest)
             }
             composable(route = Screen.Settings.route) {
                 SettingsScreen(navController = navHostController, mainViewModel = mainViewModel)

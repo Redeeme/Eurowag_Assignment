@@ -23,18 +23,16 @@ class MainActivity : ComponentActivity() {
 
     lateinit var navController: NavHostController
 
-    private var _mainViewModel: MainViewModel? = null
-    private val mainViewModel get() = _mainViewModel!!
-
     private val locationPermissionRequest = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
     ) { permissions ->
         when {
             permissions.getOrDefault(android.Manifest.permission.ACCESS_FINE_LOCATION, false) -> {
-                // Precise location granted
+
             }
+
             permissions.getOrDefault(android.Manifest.permission.ACCESS_COARSE_LOCATION, false) -> {
-                // Approximate location granted
+
             }
         }
     }
@@ -42,24 +40,33 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        locationPermissionRequest.launch(arrayOf(
-            android.Manifest.permission.ACCESS_FINE_LOCATION,
-            android.Manifest.permission.ACCESS_COARSE_LOCATION
-        ))
+        permissionRequest()
 
         setContent {
             EurowagAssignmentTheme {
-                _mainViewModel = hiltViewModel()
+                val viewModel: MainViewModel = hiltViewModel()
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    Box(modifier = Modifier){
+                    Box(modifier = Modifier) {
                         navController = rememberNavController()
-                        MainCompose(navHostController = navController, mainViewModel = mainViewModel)
+                        MainCompose(
+                            navHostController = navController,
+                            mainViewModel = viewModel,
+                            permissionRequest = { permissionRequest() })
                     }
                 }
             }
         }
+    }
+
+    private fun permissionRequest() {
+        locationPermissionRequest.launch(
+            arrayOf(
+                android.Manifest.permission.ACCESS_FINE_LOCATION,
+                android.Manifest.permission.ACCESS_COARSE_LOCATION
+            )
+        )
     }
 }

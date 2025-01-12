@@ -11,7 +11,10 @@ import kotlinx.coroutines.flow.Flow
 interface LocationPointDao {
 
     @Query("SELECT * FROM locations_table ORDER BY timestamp DESC")
-    fun getAll(): Flow<List<LocationPoint>>
+    fun getAllFlow(): Flow<List<LocationPoint>>
+
+    @Query("SELECT * FROM locations_table ORDER BY timestamp DESC")
+    suspend fun getAll(): List<LocationPoint>
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insert(location: LocationPoint)

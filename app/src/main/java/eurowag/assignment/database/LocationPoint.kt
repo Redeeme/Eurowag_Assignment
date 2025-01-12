@@ -15,7 +15,8 @@ data class LocationPoint(
     val latitude: Double,
     val longitude: Double,
     val accuracy: Float,
-    val provider: String, // GPS, Network, etc.
+    val provider: String,
     @ColumnInfo(name = "timestamp")
     val time: Long,
+    val interval: Long,
 )

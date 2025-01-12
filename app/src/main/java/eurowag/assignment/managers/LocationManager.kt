@@ -39,12 +39,13 @@ class LocationManager @Inject constructor(
     private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
 
     private fun getLocationUpdates() {
+        val prefs = MySharedPreferences(context)
         Log.d("asdfasdf", "ASDfasdf 1")
-        locationRequest = LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 5000)
+        locationRequest = LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, prefs.getInterval())
             .setWaitForAccurateLocation(false)
             .setMinUpdateDistanceMeters(170f)
-            .setMinUpdateIntervalMillis(5000)
-            .setMaxUpdateDelayMillis(10000)
+            .setMinUpdateIntervalMillis(prefs.getInterval())
+            .setMaxUpdateDelayMillis(prefs.getInterval() + 5000)
             .setMinUpdateDistanceMeters(0f)
             .build()
 
@@ -57,11 +58,12 @@ class LocationManager @Inject constructor(
                         scope.launch {
                             locationRepo.insert(
                                 LocationPoint(
-                                    latitude = location?.latitude ?: 0.0,
-                                    longitude = location?.longitude ?: 0.0,
-                                    accuracy = location?.accuracy ?: 0.0f,
-                                    provider = location?.provider ?: "",
-                                    time = location?.time ?: 0L,
+                                    latitude = location.latitude,
+                                    longitude = location.longitude,
+                                    accuracy = location.accuracy,
+                                    provider = location.provider ?: "",
+                                    time = location.time,
+                                    interval = prefs.getInterval()
                                 )
                             )
                         }
@@ -72,7 +74,7 @@ class LocationManager @Inject constructor(
     }
 
     fun startLocationUpdates() {
-        getLocationUpdates()
+
         if (ActivityCompat.checkSelfPermission(
                 context,
                 Manifest.permission.ACCESS_FINE_LOCATION
@@ -83,6 +85,10 @@ class LocationManager @Inject constructor(
         ) {
             return
         }
+
+        getLocationUpdates()
+
+
 
         fusedLocationClient.requestLocationUpdates(
             locationRequest,

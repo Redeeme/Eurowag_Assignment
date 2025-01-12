@@ -4,7 +4,8 @@ import kotlinx.coroutines.flow.Flow
 
 
 interface LocationRepository {
-    suspend fun getAll(): Flow<List<LocationPoint>>
+    suspend fun getAllFlow(): Flow<List<LocationPoint>>
+    suspend fun getAll(): List<LocationPoint>
 
     suspend fun insert(location: LocationPoint)
 

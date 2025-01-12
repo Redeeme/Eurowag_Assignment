@@ -20,6 +20,6 @@ class MySharedPreferences(context: Context) {
     }
 
     fun getInterval(): Long {
-        return sharedPreferences.getLong(SHARED_PREFERENCES_INTERVAL, 5000)
+        return sharedPreferences.getLong(SHARED_PREFERENCES_INTERVAL, 60000)
     }
 }

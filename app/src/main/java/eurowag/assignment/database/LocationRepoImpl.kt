@@ -5,7 +5,8 @@ import kotlinx.coroutines.flow.Flow
 class LocationRepoImpl(
     private val locationPointDao: LocationPointDao
 ) : LocationRepository {
-    override suspend fun getAll(): Flow<List<LocationPoint>> = locationPointDao.getAll()
+    override suspend fun getAllFlow(): Flow<List<LocationPoint>> = locationPointDao.getAllFlow()
+    override suspend fun getAll(): List<LocationPoint> = locationPointDao.getAll()
 
     override suspend fun insert(location: LocationPoint) = locationPointDao.insert(location)
 

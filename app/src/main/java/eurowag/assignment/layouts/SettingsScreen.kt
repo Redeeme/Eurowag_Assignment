@@ -26,16 +26,21 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import eurowag.assignment.MainViewModel
+import eurowag.assignment.database.MySharedPreferences
 import eurowag.assignment.layouts.navigation.Screen
 
 @Composable
 fun SettingsScreen(navController: NavController,mainViewModel: MainViewModel = hiltViewModel()){
+    val context = LocalContext.current
+    val prefs = MySharedPreferences(context)
     var showDialog by remember { mutableStateOf(false) }
     Column(
         modifier = Modifier
@@ -57,17 +62,18 @@ fun SettingsScreen(navController: NavController,mainViewModel: MainViewModel = h
         SettingsItem(
             text = "Share as json",
             icon = Icons.Default.Share,
-            onClick = {}
+            onClick = {mainViewModel.exportLocations(context)}
         )
     }
     NumberInputDialog(
         showDialog = showDialog,
         onDismiss = { showDialog = false },
         onConfirm = { number ->
-            // Handle the number input
-            println("Entered number: $number")
+            prefs.setInterval(number * 60000)
+            mainViewModel.setInterval()
         },
-        title = "Enter Interval (minutes)"
+        title = "current interval ${prefs.getInterval() / 60000} minute(s)",
+        inputLabel = "Enter Interval (minutes)"
     )
 }
 
@@ -109,8 +115,9 @@ fun SettingsItem(
 fun NumberInputDialog(
     showDialog: Boolean,
     onDismiss: () -> Unit,
-    onConfirm: (Int) -> Unit,
-    title: String = "Enter Value",
+    onConfirm: (Long) -> Unit,
+    title: String,
+    inputLabel: String,
     initialValue: String = ""
 ) {
     if (showDialog) {
@@ -118,7 +125,7 @@ fun NumberInputDialog(
 
         AlertDialog(
             onDismissRequest = onDismiss,
-            title = { Text(title) },
+            title = { Text(text = title, fontSize = 14.sp) },
             text = {
                 OutlinedTextField(
                     value = inputValue,
@@ -133,13 +140,14 @@ fun NumberInputDialog(
                         imeAction = ImeAction.Done
                     ),
                     singleLine = true,
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    label = { Text(text = inputLabel, fontSize = 14.sp)}
                 )
             },
             confirmButton = {
                 TextButton(
                     onClick = {
-                        inputValue.toIntOrNull()?.let { onConfirm(it) }
+                        inputValue.toLongOrNull()?.let { onConfirm(it) }
                         onDismiss()
                     },
                     enabled = inputValue.isNotEmpty()
