@@ -10,7 +10,7 @@ class LocationRepoImpl(
 
     override suspend fun insert(location: LocationPoint) = locationPointDao.insert(location)
 
-    override suspend fun delete(id: Int) = locationPointDao.deleteById(id)
+    override suspend fun deleteAll() = locationPointDao.deleteAll()
 
     override suspend fun update(location: LocationPoint) = locationPointDao.updateLocations(location)
 }

@@ -102,4 +102,5 @@ dependencies {
     implementation(libs.google.play.services.maps)
     implementation(libs.moshi.kotlin)
     ksp(libs.moshi.kotlin.codegen)
+    implementation(libs.mpandroidchart)
 }

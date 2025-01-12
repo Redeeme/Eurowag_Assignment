@@ -19,4 +19,5 @@ data class LocationPoint(
     @ColumnInfo(name = "timestamp")
     val time: Long,
     val interval: Long,
+    val altitude: Double,
 )

@@ -9,7 +9,7 @@ interface LocationRepository {
 
     suspend fun insert(location: LocationPoint)
 
-    suspend fun delete(id: Int)
+    suspend fun deleteAll()
 
     suspend fun update(location: LocationPoint)
 }

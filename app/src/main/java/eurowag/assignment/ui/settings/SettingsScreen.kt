@@ -1,4 +1,4 @@
-package eurowag.assignment.layouts
+package eurowag.assignment.ui.settings
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.DeleteOutline
 import androidx.compose.material.icons.filled.InsertChartOutlined
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.Timelapse
@@ -33,15 +34,17 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import eurowag.assignment.MainViewModel
+import eurowag.assignment.ui.MainViewModel
 import eurowag.assignment.database.MySharedPreferences
-import eurowag.assignment.layouts.navigation.Screen
+import eurowag.assignment.ui.navigation.Screen
 
 @Composable
-fun SettingsScreen(navController: NavController,mainViewModel: MainViewModel = hiltViewModel()){
+fun SettingsScreen(navController: NavController,mainViewModel: MainViewModel = hiltViewModel()) {
     val context = LocalContext.current
     val prefs = MySharedPreferences(context)
-    var showDialog by remember { mutableStateOf(false) }
+    var showIntervalDialog by remember { mutableStateOf(false) }
+    var showDeleteDialog by remember { mutableStateOf(false) }
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -50,24 +53,31 @@ fun SettingsScreen(navController: NavController,mainViewModel: MainViewModel = h
         SettingsItem(
             text = "Set Interval",
             icon = Icons.Default.Timelapse,
-            onClick = {showDialog = true}
+            onClick = { showIntervalDialog = true }
         )
 
         SettingsItem(
             text = "Statistics",
             icon = Icons.Default.InsertChartOutlined,
-            onClick = {}
+            onClick = {navController.navigate(Screen.Stat.route)}
         )
 
         SettingsItem(
             text = "Share as json",
             icon = Icons.Default.Share,
-            onClick = {mainViewModel.exportLocations(context)}
+            onClick = { mainViewModel.exportLocations(context) }
+        )
+
+        SettingsItem(
+            text = "Wipe all data",
+            icon = Icons.Default.DeleteOutline,
+            onClick = { showDeleteDialog = true }
         )
     }
+
     NumberInputDialog(
-        showDialog = showDialog,
-        onDismiss = { showDialog = false },
+        showDialog = showIntervalDialog,
+        onDismiss = { showIntervalDialog = false },
         onConfirm = { number ->
             prefs.setInterval(number * 60000)
             mainViewModel.setInterval()
@@ -75,8 +85,14 @@ fun SettingsScreen(navController: NavController,mainViewModel: MainViewModel = h
         title = "current interval ${prefs.getInterval() / 60000} minute(s)",
         inputLabel = "Enter Interval (minutes)"
     )
-}
 
+    DeleteDialog(
+        showDialog = showDeleteDialog,
+        onDismiss = { showDeleteDialog = false },
+        onConfirm = { mainViewModel.wipeData() }
+    )
+
+}
 
 
 @Composable
@@ -141,7 +157,7 @@ fun NumberInputDialog(
                     ),
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth(),
-                    label = { Text(text = inputLabel, fontSize = 14.sp)}
+                    label = { Text(text = inputLabel, fontSize = 14.sp) }
                 )
             },
             confirmButton = {
@@ -157,6 +173,36 @@ fun NumberInputDialog(
             },
             dismissButton = {
                 TextButton(onClick = onDismiss) {
+                    Text("Cancel")
+                }
+            }
+        )
+    }
+}
+
+@Composable
+fun DeleteDialog(
+    showDialog: Boolean,
+    onDismiss: () -> Unit,
+    onConfirm: () -> Unit,
+) {
+    if (showDialog) {
+        AlertDialog(
+            onDismissRequest = { onDismiss() },
+            title = { Text("Confirm Deletion") },
+            text = { Text("Are you sure you want to delete all location data? This action cannot be undone.") },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        onConfirm()
+                        onDismiss()
+                    }
+                ) {
+                    Text("Delete")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { onDismiss() }) {
                     Text("Cancel")
                 }
             }

@@ -19,8 +19,8 @@ interface LocationPointDao {
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insert(location: LocationPoint)
 
-    @Query("DELETE FROM locations_table WHERE id = :id")
-    suspend fun deleteById(id: Int)
+    @Query("DELETE FROM locations_table")
+    suspend fun deleteAll()
 
     @Update
     suspend fun updateLocations(location: LocationPoint)

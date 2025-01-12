@@ -1,4 +1,4 @@
-package eurowag.assignment.layouts
+package eurowag.assignment.ui.main
 
 import androidx.compose.foundation.text.input.TextFieldState
 import com.google.android.gms.maps.model.CameraPosition

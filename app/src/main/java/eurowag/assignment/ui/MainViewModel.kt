@@ -1,4 +1,4 @@
-package eurowag.assignment
+package eurowag.assignment.ui
 
 import android.Manifest
 import android.content.Context
@@ -18,7 +18,7 @@ import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import dagger.hilt.android.lifecycle.HiltViewModel
 import eurowag.assignment.database.LocationPoint
 import eurowag.assignment.database.LocationRepository
-import eurowag.assignment.layouts.MainScreenState
+import eurowag.assignment.ui.main.MainScreenState
 import eurowag.assignment.managers.LocationManager
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -129,5 +129,11 @@ class MainViewModel @Inject constructor(
             context,
             Manifest.permission.ACCESS_COARSE_LOCATION
         ) != PackageManager.PERMISSION_GRANTED)
+    }
+
+    fun wipeData(){
+        viewModelScope.launch {
+            repository.deleteAll()
+        }
     }
 }

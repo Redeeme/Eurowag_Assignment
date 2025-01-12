@@ -1,6 +1,5 @@
-package eurowag.assignment.layouts
+package eurowag.assignment.ui.main
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -23,7 +22,6 @@ import androidx.compose.material.icons.filled.ZoomOutMap
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -56,17 +54,17 @@ import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.Polyline
 import com.google.maps.android.compose.rememberMarkerState
-import eurowag.assignment.MainViewModel
 import eurowag.assignment.R
 import eurowag.assignment.database.LocationPoint
-import eurowag.assignment.layouts.navigation.Screen
+import eurowag.assignment.ui.MainViewModel
+import eurowag.assignment.ui.navigation.Screen
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
 @Composable
-fun MainScreen(navController: NavController, viewModel: MainViewModel = hiltViewModel(),permissionRequest: ()->Unit,) {
+fun MainScreen(navController: NavController, viewModel: MainViewModel = hiltViewModel(), permissionRequest: ()->Unit,) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val pagerState = rememberPagerState { state.locations.size }
     val scope = rememberCoroutineScope()

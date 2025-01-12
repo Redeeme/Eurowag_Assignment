@@ -40,7 +40,6 @@ class LocationManager @Inject constructor(
 
     private fun getLocationUpdates() {
         val prefs = MySharedPreferences(context)
-        Log.d("asdfasdf", "ASDfasdf 1")
         locationRequest = LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, prefs.getInterval())
             .setWaitForAccurateLocation(false)
             .setMinUpdateDistanceMeters(170f)
@@ -51,9 +50,7 @@ class LocationManager @Inject constructor(
 
         locationCallback = object : LocationCallback() {
             override fun onLocationResult(locationResult: LocationResult) {
-                Log.d("asdfasdf", "ASDfasdf 2")
                 if (locationResult.locations.isNotEmpty()) {
-                    Log.d("asdfasdf", "ASDfasdf ${locationResult.lastLocation}")
                     locationResult.lastLocation?.let { location ->
                         scope.launch {
                             locationRepo.insert(
@@ -63,7 +60,8 @@ class LocationManager @Inject constructor(
                                     accuracy = location.accuracy,
                                     provider = location.provider ?: "",
                                     time = location.time,
-                                    interval = prefs.getInterval()
+                                    interval = prefs.getInterval(),
+                                    altitude = location.altitude
                                 )
                             )
                         }
