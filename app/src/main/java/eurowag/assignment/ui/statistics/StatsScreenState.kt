@@ -10,5 +10,5 @@ data class StatsScreenState(
     val minSpeed: Double = 0.0,
     val maxSpeed: Double = 0.0,
     val avgAlt: Double = 0.0,
-    val entries: MutableList<Entry> = mutableListOf()
+    val entries: MutableList<Entry> = mutableListOf(),
 )

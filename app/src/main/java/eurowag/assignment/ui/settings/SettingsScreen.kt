@@ -8,14 +8,19 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.DeleteOutline
 import androidx.compose.material.icons.filled.InsertChartOutlined
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.Timelapse
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -28,52 +33,77 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import eurowag.assignment.ui.MainViewModel
+import eurowag.assignment.R
 import eurowag.assignment.database.MySharedPreferences
+import eurowag.assignment.ui.MainViewModel
 import eurowag.assignment.ui.navigation.Screen
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SettingsScreen(navController: NavController,mainViewModel: MainViewModel = hiltViewModel()) {
+fun SettingsScreen(navController: NavController, mainViewModel: MainViewModel = hiltViewModel()) {
     val context = LocalContext.current
     val prefs = MySharedPreferences(context)
     var showIntervalDialog by remember { mutableStateOf(false) }
     var showDeleteDialog by remember { mutableStateOf(false) }
 
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 8.dp)
-    ) {
-        SettingsItem(
-            text = "Set Interval",
-            icon = Icons.Default.Timelapse,
-            onClick = { showIntervalDialog = true }
-        )
+    Scaffold(
+        topBar = {
+            CenterAlignedTopAppBar(
+                title = {
+                    Text(
+                        text = stringResource(id = R.string.settings),
+                        style = MaterialTheme.typography.titleLarge
+                    )
+                },
+                navigationIcon = {
+                    IconButton(onClick = { navController.navigateUp() }) {
+                        Icon(
+                            imageVector = Icons.Default.ArrowBack,
+                            contentDescription = "Back"
+                        )
+                    }
+                }
+            )
+        }
+    ) { padding ->
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(padding)
+        ) {
+            SettingsItem(
+                text = stringResource(id = R.string.set_interval),
+                icon = Icons.Default.Timelapse,
+                onClick = { showIntervalDialog = true }
+            )
 
-        SettingsItem(
-            text = "Statistics",
-            icon = Icons.Default.InsertChartOutlined,
-            onClick = {navController.navigate(Screen.Stat.route)}
-        )
+            SettingsItem(
+                text = stringResource(id = R.string.statistics),
+                icon = Icons.Default.InsertChartOutlined,
+                onClick = { navController.navigate(Screen.Stat.route) }
+            )
 
-        SettingsItem(
-            text = "Share as json",
-            icon = Icons.Default.Share,
-            onClick = { mainViewModel.exportLocations(context) }
-        )
+            SettingsItem(
+                text = stringResource(id = R.string.share_as_json),
+                icon = Icons.Default.Share,
+                onClick = { mainViewModel.exportLocations(context) }
+            )
 
-        SettingsItem(
-            text = "Wipe all data",
-            icon = Icons.Default.DeleteOutline,
-            onClick = { showDeleteDialog = true }
-        )
+            SettingsItem(
+                text = stringResource(id = R.string.wipe_all_data),
+                icon = Icons.Default.DeleteOutline,
+                onClick = { showDeleteDialog = true }
+            )
+        }
     }
+
 
     NumberInputDialog(
         showDialog = showIntervalDialog,
@@ -82,8 +112,12 @@ fun SettingsScreen(navController: NavController,mainViewModel: MainViewModel = h
             prefs.setInterval(number * 60000)
             mainViewModel.setInterval()
         },
-        title = "current interval ${prefs.getInterval() / 60000} minute(s)",
-        inputLabel = "Enter Interval (minutes)"
+        title = "${stringResource(id = R.string.current_interval)} ${prefs.getInterval() / 60000} ${
+            stringResource(
+                id = R.string.minute
+            )
+        }",
+        inputLabel = stringResource(id = R.string.enter_interval_minutes)
     )
 
     DeleteDialog(
@@ -168,12 +202,12 @@ fun NumberInputDialog(
                     },
                     enabled = inputValue.isNotEmpty()
                 ) {
-                    Text("Confirm")
+                    Text(stringResource(id = R.string.confirm))
                 }
             },
             dismissButton = {
                 TextButton(onClick = onDismiss) {
-                    Text("Cancel")
+                    Text(stringResource(id = R.string.cancel))
                 }
             }
         )
@@ -189,8 +223,8 @@ fun DeleteDialog(
     if (showDialog) {
         AlertDialog(
             onDismissRequest = { onDismiss() },
-            title = { Text("Confirm Deletion") },
-            text = { Text("Are you sure you want to delete all location data? This action cannot be undone.") },
+            title = { Text(stringResource(id = R.string.confirm_deletion)) },
+            text = { Text(stringResource(id = R.string.confirm_deletion_text)) },
             confirmButton = {
                 TextButton(
                     onClick = {
@@ -198,12 +232,12 @@ fun DeleteDialog(
                         onDismiss()
                     }
                 ) {
-                    Text("Delete")
+                    Text(stringResource(id = R.string.delete))
                 }
             },
             dismissButton = {
                 TextButton(onClick = { onDismiss() }) {
-                    Text("Cancel")
+                    Text(stringResource(id = R.string.cancel))
                 }
             }
         )

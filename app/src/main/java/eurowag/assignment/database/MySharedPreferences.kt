@@ -6,7 +6,8 @@ import android.content.SharedPreferences
 class MySharedPreferences(context: Context) {
 
     private val sharedPreferences: SharedPreferences = context.getSharedPreferences(
-        SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE)
+        SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE
+    )
 
     companion object {
         private const val SHARED_PREFERENCES_NAME = "MyPrefs"
@@ -20,6 +21,6 @@ class MySharedPreferences(context: Context) {
     }
 
     fun getInterval(): Long {
-        return sharedPreferences.getLong(SHARED_PREFERENCES_INTERVAL, 60000)
+        return sharedPreferences.getLong(SHARED_PREFERENCES_INTERVAL, 60000) // default 1 min
     }
 }

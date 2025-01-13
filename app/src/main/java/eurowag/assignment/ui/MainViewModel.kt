@@ -47,18 +47,18 @@ class MainViewModel @Inject constructor(
         }
     }
 
-    fun startTracking(){
+    fun startTracking() {
         try {
             locationManager.startLocationUpdates()
             _state.update {
                 it.copy(isTracking = true)
             }
         } catch (e: Exception) {
-            Log.e("ViewModel", "Error starting tracking", e)
+            Log.e("MainViewModel", "Error starting tracking", e)
         }
     }
 
-    fun stopTracking(){
+    fun stopTracking() {
         locationManager.stopLocationUpdates()
         _state.update {
             it.copy(
@@ -67,7 +67,7 @@ class MainViewModel @Inject constructor(
         }
     }
 
-    fun zoomToShowPins(){
+    fun zoomToShowPins() {
         if (state.value.locations.isNotEmpty()) {
             val builder = LatLngBounds.Builder()
             state.value.locations.forEach { location ->
@@ -85,8 +85,8 @@ class MainViewModel @Inject constructor(
         }
     }
 
-    fun setInterval(){
-        if (state.value.isTracking){
+    fun setInterval() {
+        if (state.value.isTracking) {
             stopTracking()
             startTracking()
         }
@@ -121,7 +121,7 @@ class MainViewModel @Inject constructor(
         }
     }
 
-    fun checkPermissions(context: Context): Boolean{
+    fun checkPermissions(context: Context): Boolean {
         return !(ActivityCompat.checkSelfPermission(
             context,
             Manifest.permission.ACCESS_FINE_LOCATION
@@ -131,7 +131,7 @@ class MainViewModel @Inject constructor(
         ) != PackageManager.PERMISSION_GRANTED)
     }
 
-    fun wipeData(){
+    fun wipeData() {
         viewModelScope.launch {
             repository.deleteAll()
         }

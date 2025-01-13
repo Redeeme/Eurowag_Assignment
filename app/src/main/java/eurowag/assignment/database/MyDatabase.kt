@@ -3,7 +3,7 @@ package eurowag.assignment.database
 import androidx.room.Database
 import androidx.room.RoomDatabase
 
-@Database(entities = [LocationPoint::class], version = 3)
+@Database(entities = [LocationPoint::class], version = 4)
 abstract class MyDatabase : RoomDatabase() {
     abstract fun locationPointDao(): LocationPointDao
 

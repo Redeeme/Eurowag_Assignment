@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
@@ -22,6 +21,7 @@ import androidx.compose.material.icons.filled.ZoomOutMap
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
+import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -29,7 +29,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
@@ -64,13 +63,22 @@ import java.util.Date
 import java.util.Locale
 
 @Composable
-fun MainScreen(navController: NavController, viewModel: MainViewModel = hiltViewModel(), permissionRequest: ()->Unit,) {
+fun MainScreen(
+    navController: NavController,
+    viewModel: MainViewModel = hiltViewModel(),
+    permissionRequest: () -> Unit,
+) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val pagerState = rememberPagerState { state.locations.size }
     val scope = rememberCoroutineScope()
 
     Scaffold(
-        topBar = { TopAppMainBar(navController = navController, onZoom = viewModel::zoomToShowPins) },
+        topBar = {
+            TopAppMainBar(
+                navController = navController,
+                onZoom = viewModel::zoomToShowPins
+            )
+        },
         bottomBar = {
             BottomAppMainBar(
                 isTracking = state.isTracking,
@@ -123,10 +131,9 @@ fun MainScreen(navController: NavController, viewModel: MainViewModel = hiltView
             HorizontalPager(
                 state = pagerState,
                 modifier = Modifier
-                    .align(Alignment.TopCenter)
+                    .align(Alignment.TopStart)
                     .padding(16.dp)
-                    .wrapContentHeight()
-                    .fillMaxWidth()
+                    .width(235.dp)
             ) { page ->
                 LocationCard(
                     location = state.locations[page]
@@ -140,24 +147,24 @@ fun MainScreen(navController: NavController, viewModel: MainViewModel = hiltView
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TopAppMainBar(navController: NavController, onZoom: () -> Unit) {
-    TopAppBar(
+    CenterAlignedTopAppBar(
         title = {
             Text(
                 text = stringResource(id = R.string.app_name),
-                style = MaterialTheme.typography.labelLarge
+                style = MaterialTheme.typography.titleLarge
             )
         },
         actions = {
             IconButton(onClick = onZoom) {
                 Icon(
                     imageVector = Icons.Default.ZoomOutMap,
-                    contentDescription = "Zoom to all pins"
+                    contentDescription = stringResource(id = R.string.zoom_to_all_pins)
                 )
             }
             IconButton(onClick = { navController.navigate(Screen.Settings.route) }) {
                 Icon(
                     imageVector = Icons.Default.Settings,
-                    contentDescription = "Settings"
+                    contentDescription = stringResource(id = R.string.settings)
                 )
             }
         }
@@ -169,7 +176,7 @@ fun TopAppMainBar(navController: NavController, onZoom: () -> Unit) {
 fun BottomAppMainBar(
     isTracking: Boolean,
     viewModel: MainViewModel,
-    permissionRequest: ()->Unit,
+    permissionRequest: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
@@ -188,9 +195,9 @@ fun BottomAppMainBar(
         ) {
             Button(
                 onClick = {
-                    if (viewModel.checkPermissions(context)){
+                    if (viewModel.checkPermissions(context)) {
                         viewModel.startTracking()
-                    }else{
+                    } else {
                         permissionRequest()
                     }
 
@@ -212,7 +219,7 @@ fun BottomAppMainBar(
                         contentDescription = null
                     )
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text("Start Tracking")
+                    Text(text = stringResource(id = R.string.start_tracking))
                 }
             }
 
@@ -235,7 +242,7 @@ fun BottomAppMainBar(
                         contentDescription = null
                     )
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text("Stop Tracking")
+                    Text(text = stringResource(id = R.string.stop_tracking))
                 }
             }
         }
@@ -259,19 +266,19 @@ fun LocationCard(
                 style = MaterialTheme.typography.titleMedium
             )
             Text(
-                text = "Lat: ${location.latitude}",
+                text = "${stringResource(id = R.string.lat)}: ${location.latitude}",
                 style = MaterialTheme.typography.bodyMedium
             )
             Text(
-                text = "Lng: ${location.longitude}",
+                text = "${stringResource(id = R.string.lng)}: ${location.longitude}",
                 style = MaterialTheme.typography.bodyMedium
             )
             Text(
-                text = "accuracy: ${location.accuracy}",
+                text = "${stringResource(id = R.string.accuracy)}: ${location.accuracy}",
                 style = MaterialTheme.typography.bodyMedium
             )
             Text(
-                text = "provider: ${location.provider}",
+                text = "${stringResource(id = R.string.provider)}: ${location.provider}",
                 style = MaterialTheme.typography.bodyMedium
             )
         }

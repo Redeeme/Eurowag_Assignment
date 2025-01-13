@@ -4,7 +4,6 @@ import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Looper
-import android.util.Log
 import androidx.core.app.ActivityCompat
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationCallback
@@ -40,13 +39,14 @@ class LocationManager @Inject constructor(
 
     private fun getLocationUpdates() {
         val prefs = MySharedPreferences(context)
-        locationRequest = LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, prefs.getInterval())
-            .setWaitForAccurateLocation(false)
-            .setMinUpdateDistanceMeters(170f)
-            .setMinUpdateIntervalMillis(prefs.getInterval())
-            .setMaxUpdateDelayMillis(prefs.getInterval() + 5000)
-            .setMinUpdateDistanceMeters(0f)
-            .build()
+        locationRequest =
+            LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, prefs.getInterval())
+                .setWaitForAccurateLocation(false)
+                .setMinUpdateDistanceMeters(170f)
+                .setMinUpdateIntervalMillis(prefs.getInterval())
+                .setMaxUpdateDelayMillis(prefs.getInterval() + 5000)
+                .setMinUpdateDistanceMeters(0f)
+                .build()
 
         locationCallback = object : LocationCallback() {
             override fun onLocationResult(locationResult: LocationResult) {
@@ -60,7 +60,6 @@ class LocationManager @Inject constructor(
                                     accuracy = location.accuracy,
                                     provider = location.provider ?: "",
                                     time = location.time,
-                                    interval = prefs.getInterval(),
                                     altitude = location.altitude
                                 )
                             )
@@ -86,15 +85,12 @@ class LocationManager @Inject constructor(
 
         getLocationUpdates()
 
-
-
         fusedLocationClient.requestLocationUpdates(
             locationRequest,
             locationCallback,
             Looper.getMainLooper()
         )
     }
-
 
     fun stopLocationUpdates() {
         fusedLocationClient.removeLocationUpdates(locationCallback)

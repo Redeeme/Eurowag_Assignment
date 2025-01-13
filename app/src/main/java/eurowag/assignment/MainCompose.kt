@@ -18,7 +18,7 @@ import eurowag.assignment.ui.statistics.StatisticsViewModel
 fun MainCompose(
     navHostController: NavHostController,
     mainViewModel: MainViewModel = hiltViewModel(),
-    permissionRequest: ()->Unit,
+    permissionRequest: () -> Unit,
 ) {
     Box(modifier = Modifier) {
         NavHost(
@@ -26,14 +26,18 @@ fun MainCompose(
             startDestination = Screen.Main.route
         ) {
             composable(route = Screen.Main.route) {
-                MainScreen(navController = navHostController, viewModel = mainViewModel,permissionRequest = permissionRequest)
+                MainScreen(
+                    navController = navHostController,
+                    viewModel = mainViewModel,
+                    permissionRequest = permissionRequest
+                )
             }
             composable(route = Screen.Settings.route) {
                 SettingsScreen(navController = navHostController, mainViewModel = mainViewModel)
             }
             composable(route = Screen.Stat.route) {
                 val viewModel: StatisticsViewModel = hiltViewModel()
-                StatScreen(navController = navHostController,viewModel = viewModel)
+                StatScreen(navController = navHostController, viewModel = viewModel)
             }
 
         }

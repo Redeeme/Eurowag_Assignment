@@ -11,7 +11,6 @@ import eurowag.assignment.database.LocationPointDao
 import eurowag.assignment.database.LocationRepoImpl
 import eurowag.assignment.database.LocationRepository
 import eurowag.assignment.database.MyDatabase
-import eurowag.assignment.managers.LocationManager
 import javax.inject.Singleton
 
 @InstallIn(SingletonComponent::class)
