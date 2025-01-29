@@ -1,16 +1,18 @@
 package eurowag.assignment.database
 
+import eurowag.assignment.database.entities.LocationPointEntity
 import kotlinx.coroutines.flow.Flow
 
 
 interface LocationRepository {
-    suspend fun getAllFlow(): Flow<List<LocationPoint>>
 
-    suspend fun getAll(): List<LocationPoint>
+    suspend fun getAllFlow(): Flow<List<LocationPointEntity>>
 
-    suspend fun insert(location: LocationPoint)
+    suspend fun getAll(): List<LocationPointEntity>
+
+    suspend fun insert(location: LocationPointEntity)
 
     suspend fun deleteAll()
 
-    suspend fun update(location: LocationPoint)
+    suspend fun update(location: LocationPointEntity)
 }

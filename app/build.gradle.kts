@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.jetbrainsKotlinAndroid)
     alias(libs.plugins.daggerHiltAndroid)
     alias(libs.plugins.devtoolsKsp)
+    alias(libs.plugins.composeCompiler)
 }
 
 android {
@@ -103,4 +104,6 @@ dependencies {
     implementation(libs.moshi.kotlin)
     ksp(libs.moshi.kotlin.codegen)
     implementation(libs.mpandroidchart)
+
+
 }

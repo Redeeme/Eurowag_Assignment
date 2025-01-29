@@ -1,4 +1,4 @@
-package eurowag.assignment.database
+package eurowag.assignment.utils
 
 import android.content.Context
 import android.content.SharedPreferences

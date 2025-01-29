@@ -1,4 +1,4 @@
-package eurowag.assignment
+package eurowag.assignment.ui
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -9,11 +9,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import dagger.hilt.android.AndroidEntryPoint
-import eurowag.assignment.ui.MainViewModel
+import eurowag.assignment.navigation.MainCompose
 import eurowag.assignment.ui.theme.EurowagAssignmentTheme
 
 @AndroidEntryPoint
@@ -42,7 +41,6 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             EurowagAssignmentTheme {
-                val viewModel: MainViewModel = hiltViewModel()
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
@@ -51,7 +49,6 @@ class MainActivity : ComponentActivity() {
                         navController = rememberNavController()
                         MainCompose(
                             navHostController = navController,
-                            mainViewModel = viewModel,
                             permissionRequest = { permissionRequest() })
                     }
                 }

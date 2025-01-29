@@ -44,6 +44,7 @@ import java.util.Locale
 @Composable
 fun StatScreen(navController: NavController, viewModel: StatisticsViewModel = hiltViewModel()) {
     val state by viewModel.state.collectAsStateWithLifecycle()
+
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(

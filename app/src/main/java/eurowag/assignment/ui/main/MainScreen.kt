@@ -1,5 +1,6 @@
 package eurowag.assignment.ui.main
 
+import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -12,6 +13,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.PlayArrow
@@ -30,17 +32,31 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.currentRecomposeScope
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.nestedscroll.NestedScrollSource.Companion.SideEffect
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LifecycleEventEffect
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.compose.currentStateAsState
 import androidx.navigation.NavController
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.Dot
@@ -54,9 +70,10 @@ import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.Polyline
 import com.google.maps.android.compose.rememberMarkerState
 import eurowag.assignment.R
-import eurowag.assignment.database.LocationPoint
-import eurowag.assignment.ui.MainViewModel
-import eurowag.assignment.ui.navigation.Screen
+import eurowag.assignment.database.entities.LocationPointEntity
+import eurowag.assignment.navigation.Screen
+import eurowag.assignment.ui.uiStates.LocationPointState
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -69,8 +86,42 @@ fun MainScreen(
     permissionRequest: () -> Unit,
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
+
     val pagerState = rememberPagerState { state.locations.size }
-    val scope = rememberCoroutineScope()
+
+    val lifecycleOwner = LocalLifecycleOwner.current
+    val lifecycleStateFlow = lifecycleOwner.lifecycle.currentStateFlow
+    val currentLifecycleState by lifecycleStateFlow.collectAsState()
+    val currentLifecycleStatee = lifecycleOwner.lifecycle.currentStateAsState()
+
+
+    LifecycleEventEffect(Lifecycle.Event.ON_CREATE) {
+        Log.d("eventtt","ON_CREATE")
+    }
+    LifecycleEventEffect(Lifecycle.Event.ON_PAUSE) {
+        Log.d("eventtt","ON_PAUSE")
+    }
+    LifecycleEventEffect(Lifecycle.Event.ON_RESUME) {
+        Log.d("eventtt","ON_RESUME")
+    }
+    LifecycleEventEffect(Lifecycle.Event.ON_ANY) {
+        Log.d("eventtt","ON_ANY")
+    }
+    LifecycleEventEffect(Lifecycle.Event.ON_PAUSE) {
+        Log.d("eventtt","ON_PAUSE")
+    }
+    LifecycleEventEffect(Lifecycle.Event.ON_STOP) {
+        Log.d("eventtt","ON_STOP")
+    }
+
+
+    SideEffect{
+        Log.d("eventtt","SideEffect")
+    }
+    LaunchedEffect(Unit) {
+        Log.d("eventtt","LaunchedEffect")
+    }
+
 
     Scaffold(
         topBar = {
@@ -98,27 +149,7 @@ fun MainScreen(
                     mapToolbarEnabled = false
                 )
             ) {
-                state.locations.forEachIndexed { index, loc ->
-                    key(loc.id) {
-                        Marker(
-                            state = rememberMarkerState(
-                                key = "${loc.latitude}_${loc.longitude}",
-                                position = LatLng(loc.latitude, loc.longitude)
-                            ),
-                            icon = if (index == pagerState.currentPage) {
-                                BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)
-                            } else {
-                                BitmapDescriptorFactory.defaultMarker()
-                            },
-                            onClick = {
-                                scope.launch {
-                                    pagerState.animateScrollToPage(index)
-                                }
-                                true
-                            }
-                        )
-                    }
-                }
+                MarkerList(state.locations, pagerState)
 
                 Polyline(
                     points = state.locations.map { LatLng(it.latitude, it.longitude) },
@@ -251,8 +282,17 @@ fun BottomAppMainBar(
 
 @Composable
 fun LocationCard(
-    location: LocationPoint,
+    location: LocationPointState,
 ) {
+    val recomposeCount = remember { mutableStateOf(0) }
+    SideEffect {
+        recomposeCount.value++
+        Log.d(
+            "MarkerRecomposition",
+            "Marker ${location.id} recomposed ${recomposeCount.value} times"
+        )
+    }
+
     Card(
         modifier = Modifier
             .padding(8.dp),
@@ -283,4 +323,50 @@ fun LocationCard(
             )
         }
     }
+}
+
+@Composable
+fun MarkerList(
+    locations: List<LocationPointState>,
+    pagerState: PagerState,
+) {
+    val scope = rememberCoroutineScope()
+    locations.forEachIndexed { index, location ->
+        StableMarker(
+            location = location,
+            isSelected = index == pagerState.currentPage,
+            onMarkerClick = remember(index) {
+                {
+                    scope.launch {
+                        pagerState.animateScrollToPage(index)
+                    }
+
+                }
+            }
+        )
+    }
+}
+
+
+@Composable
+private fun StableMarker(
+    location: LocationPointState,
+    isSelected: Boolean,
+    onMarkerClick: () -> Unit
+) {
+    Marker(
+        state = rememberMarkerState(
+            key = "${location.latitude}_${location.longitude}",
+            position = LatLng(location.latitude, location.longitude)
+        ),
+        icon = if (isSelected) {
+            BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)
+        } else {
+            BitmapDescriptorFactory.defaultMarker()
+        },
+        onClick = {
+            onMarkerClick()
+            true
+        }
+    )
 }

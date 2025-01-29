@@ -1,9 +1,10 @@
-package eurowag.assignment.managers
+package eurowag.assignment.domain.managers
 
 import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Looper
+import android.util.Log
 import androidx.core.app.ActivityCompat
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationCallback
@@ -12,12 +13,11 @@ import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
 import dagger.hilt.android.qualifiers.ApplicationContext
-import eurowag.assignment.database.LocationPoint
+import eurowag.assignment.database.entities.LocationPointEntity
 import eurowag.assignment.database.LocationRepository
-import eurowag.assignment.database.MySharedPreferences
+import eurowag.assignment.utils.MySharedPreferences
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -35,16 +35,18 @@ class LocationManager @Inject constructor(
 
     private lateinit var locationRequest: LocationRequest
 
-    private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
+    private val scope = CoroutineScope(Dispatchers.IO)
+
+    var isTracking: Boolean = false
 
     private fun getLocationUpdates() {
         val prefs = MySharedPreferences(context)
         locationRequest =
-            LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, prefs.getInterval())
+            LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 5000)
                 .setWaitForAccurateLocation(false)
                 .setMinUpdateDistanceMeters(170f)
-                .setMinUpdateIntervalMillis(prefs.getInterval())
-                .setMaxUpdateDelayMillis(prefs.getInterval() + 5000)
+                .setMinUpdateIntervalMillis(5000)
+                .setMaxUpdateDelayMillis(5000)
                 .setMinUpdateDistanceMeters(0f)
                 .build()
 
@@ -53,8 +55,9 @@ class LocationManager @Inject constructor(
                 if (locationResult.locations.isNotEmpty()) {
                     locationResult.lastLocation?.let { location ->
                         scope.launch {
+                            Log.d("eventtt","locationCallback")
                             locationRepo.insert(
-                                LocationPoint(
+                                LocationPointEntity(
                                     latitude = location.latitude,
                                     longitude = location.longitude,
                                     accuracy = location.accuracy,
@@ -90,10 +93,12 @@ class LocationManager @Inject constructor(
             locationCallback,
             Looper.getMainLooper()
         )
+        isTracking = true
     }
 
     fun stopLocationUpdates() {
         fusedLocationClient.removeLocationUpdates(locationCallback)
+        isTracking = false
     }
 }
 

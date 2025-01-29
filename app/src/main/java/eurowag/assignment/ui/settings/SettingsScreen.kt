@@ -39,19 +39,17 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import eurowag.assignment.R
-import eurowag.assignment.database.MySharedPreferences
-import eurowag.assignment.ui.MainViewModel
-import eurowag.assignment.ui.navigation.Screen
+import eurowag.assignment.utils.MySharedPreferences
+import eurowag.assignment.navigation.Screen
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SettingsScreen(navController: NavController, mainViewModel: MainViewModel = hiltViewModel()) {
+fun SettingsScreen(navController: NavController, viewModel: SettingsViewModel = hiltViewModel()) {
     val context = LocalContext.current
-    val prefs = MySharedPreferences(context)
-    var showIntervalDialog by remember { mutableStateOf(false) }
-    var showDeleteDialog by remember { mutableStateOf(false) }
+    val state by viewModel.state.collectAsStateWithLifecycle()
 
     Scaffold(
         topBar = {
@@ -81,7 +79,7 @@ fun SettingsScreen(navController: NavController, mainViewModel: MainViewModel = 
             SettingsItem(
                 text = stringResource(id = R.string.set_interval),
                 icon = Icons.Default.Timelapse,
-                onClick = { showIntervalDialog = true }
+                onClick = { viewModel.showIntervalDialog(true) }
             )
 
             SettingsItem(
@@ -93,26 +91,25 @@ fun SettingsScreen(navController: NavController, mainViewModel: MainViewModel = 
             SettingsItem(
                 text = stringResource(id = R.string.share_as_json),
                 icon = Icons.Default.Share,
-                onClick = { mainViewModel.exportLocations(context) }
+                onClick = { viewModel.exportLocations(context) }
             )
 
             SettingsItem(
                 text = stringResource(id = R.string.wipe_all_data),
                 icon = Icons.Default.DeleteOutline,
-                onClick = { showDeleteDialog = true }
+                onClick = { viewModel.showDeleteDialog(true) }
             )
         }
     }
 
 
     NumberInputDialog(
-        showDialog = showIntervalDialog,
-        onDismiss = { showIntervalDialog = false },
-        onConfirm = { number ->
-            prefs.setInterval(number * 60000)
-            mainViewModel.setInterval()
+        showDialog = state.showIntervalDialog,
+        onDismiss = { viewModel.showIntervalDialog(false) },
+        onConfirm = { interval ->
+            viewModel.setInterval(interval)
         },
-        title = "${stringResource(id = R.string.current_interval)} ${prefs.getInterval() / 60000} ${
+        title = "${stringResource(id = R.string.current_interval)} ${viewModel.prefs.getInterval() / 60000} ${
             stringResource(
                 id = R.string.minute
             )
@@ -121,9 +118,9 @@ fun SettingsScreen(navController: NavController, mainViewModel: MainViewModel = 
     )
 
     DeleteDialog(
-        showDialog = showDeleteDialog,
-        onDismiss = { showDeleteDialog = false },
-        onConfirm = { mainViewModel.wipeData() }
+        showDialog = state.showDeleteDialog,
+        onDismiss = { viewModel.showDeleteDialog(false) },
+        onConfirm = { viewModel.wipeData() }
     )
 
 }

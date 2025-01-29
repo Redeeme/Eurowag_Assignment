@@ -1,4 +1,4 @@
-package eurowag.assignment.ui.navigation
+package eurowag.assignment.navigation
 
 sealed class Screen(val route: String) {
     object Main : Screen(route = "main_screen")
